@@ -39,9 +39,14 @@
   * 3. Make sure the shell doesn't exit when SIGINT is received
   */
  void sigint_handler(int sig) {
-     /* TODO: Your implementation here */
- }
- 
+    (void)sig;
+    write(STDOUT_FILENO, "\n", 1);
+    if (!child_running) {
+        display_prompt();
+        fflush(stdout);
+    }
+}
+
  /**
   * Display the command prompt with current directory
   */
@@ -115,6 +120,15 @@
      int builtin_result;
      
      /* TODO: Set up signal handling for SIGINT (Ctrl+C) */
+     struct sigaction sa;
+     sa.sa_handler = sigint_handler;
+     sigemptyset(&sa.sa_mask);
+     sa.sa_flags = SA_RESTART;
+     
+     if(sigaction(SIGINT, &sa, NULL) == -1) {
+         perror("sigaction");
+         exit(EXIT_FAILURE);
+     }
      
      while (status) {
          display_prompt();
