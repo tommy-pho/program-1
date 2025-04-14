@@ -74,7 +74,6 @@
          input[len - 1] = '\0';
      }
      char *token = strtok(input, " ");
-
      while (token != NULL && i < MAX_ARGS) {
          args[i] = token;
          i++;
