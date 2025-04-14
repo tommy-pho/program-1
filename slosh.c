@@ -73,6 +73,17 @@
   */
  int parse_input(char *input, char **args) {
      /* TODO: Your implementation here */
+     int i = 0;
+     int len = strlen(input);
+     if (input && input[len - 1] == '\n') {
+         input[len - 1] = '\0';
+     }
+     char *token = strtok(input, " ");
+     while (token != NULL && i < MAX_ARGS) {
+         args[i] = token;
+         i++;
+         token = strtok(NULL, " ");
+     } 
      return 0;
  }
  
