@@ -1,5 +1,5 @@
 # Program 1: SLOsh
-# by Tommy Pho & Anson Wu
+## by Tommy Pho & Anson Wu
 
 This assignment may be completed individually or in pairs.
 
@@ -14,8 +14,6 @@ In this programming assignment, you will implement a simple Unix-like shell call
 - Piping  
 
 This is a refresher assignment meant to remind you of core concepts from CSC 357.
-
----
 
 ## Requirements
 
@@ -59,8 +57,6 @@ Your shell (`slosh`) must implement the following features:
 - Report **non-zero exit statuses**  
 - Report signals that terminated child processes
 
----
-
 ## Implementation Guidelines / Hints
 
 ### Main Loop
@@ -90,8 +86,6 @@ Your shell (`slosh`) must implement the following features:
 - Use `open()`, `dup2()`, and `close()` for file redirection  
 - Use `pipe()` to create pipes
 
----
-
 ## Testing / Grading Rubric
 
 | Feature | Description |
@@ -113,8 +107,6 @@ Your shell (`slosh`) must implement the following features:
 | Code Quality | Clean, maintainable code |
 
 Each feature is worth 1 point unless otherwise noted.
-
----
 
 ## Deliverables
 
