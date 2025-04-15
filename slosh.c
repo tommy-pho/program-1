@@ -102,6 +102,45 @@
       * 4. For pipes, create two child processes connected by a pipe
       * 5. For redirection, use open() and dup2() to redirect stdout
       */
+     pid_t cpid;
+     int i = 0;
+     char *commands[20][MAX_ARGS];
+     int numComs = 0;
+     int j = 0;
+     int length = sizeof(args) / sizeof(args[0]);
+     while (i < length) {
+         if (strcmp(args[i], "|") == 0) {
+             commands[numComs][j] = NULL;
+             numComs++;
+             j = 0;
+         } else if (strcmp(args[i], ">") == 0) {
+             commands[numComs][j] = NULL;
+             break;
+         } else if (strcmp(args[i], ">>") == 0) {
+             commands[numComs][j] = NULL;
+             break;
+         } else { // regular command
+             commands[numComs][j] = args[i];
+             j++;
+         }
+         i++;
+         commands[numComs][j] = NULL;
+         numComs++;
+     }   
+     cpid = fork();
+     if (cpid == -1) {
+         perror("fork failed");
+         exit(EXIT_FAILURE);
+     }
+     if (cpid == 0) { // child
+         execlp(args[0], args[0], args[1], (char*)NULL);
+         printf("failed");
+         exit(EXIT_FAILURE);
+     }
+     if (cpid != 0) { // parent
+         wait(NULL);
+     }
+     
  }
  
  /**
