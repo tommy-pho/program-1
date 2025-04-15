@@ -126,21 +126,36 @@
          i++;
          commands[numComs][j] = NULL;
          numComs++;
+     }
+     char *outfile = NULL;
+     int numPipes = numComs - 1;
+     int pipefd[2 * numPipes];
+     int k = 0;
+     int m = 0;
+     // create all the pipes
+     for (k = 0; k < numPipes; ++i) {
+         if (pipe(pipefd + i * 2) == -1) {
+             perror("pipe creation failed");
+             exit(EXIT_FAILURE);
+         }
+     }
+
+     // forking
+     for (m = 0; m < numComs; ++m) {
+         cpid = fork();
+         if (cpid == -1) {
+             perror("fork failed");
+             exit(EXIT_FAILURE);
+         }
+         if (cpid == 0) { // child
+             execlp(args[0], args[0], args[1], (char*)NULL);
+             printf("failed");
+             exit(EXIT_FAILURE);
+         }
+         if (cpid != 0) { // parent
+             wait(NULL);
+         }
      }   
-     cpid = fork();
-     if (cpid == -1) {
-         perror("fork failed");
-         exit(EXIT_FAILURE);
-     }
-     if (cpid == 0) { // child
-         execlp(args[0], args[0], args[1], (char*)NULL);
-         printf("failed");
-         exit(EXIT_FAILURE);
-     }
-     if (cpid != 0) { // parent
-         wait(NULL);
-     }
-     
  }
  
  /**
