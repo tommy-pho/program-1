@@ -121,6 +121,3 @@ Submit a `.tgz` archive containing:
   - Filename must be `README` (all caps, no extension)
 
 > Make sure it compiles and runs on the CSL UNIX machines (e.g., `unix1.csc.calpoly.edu`).
-=======
-# program-1
-Anson Wu and Tommy Pho
