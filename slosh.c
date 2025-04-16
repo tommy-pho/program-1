@@ -170,7 +170,7 @@
              if (m < numPipes) {
                  dup2(pipefd[m * 2 + 1], STDOUT_FILENO);
              }
-             if (outfile != NULL && m == numComs - 1 && numPipes == 0) {
+             if (outfile != NULL && m == numComs - 1) {
                  int outFD;
                  if (append) {
                      outFD = open(outfile, O_WRONLY | O_CREAT | O_APPEND, 0644);

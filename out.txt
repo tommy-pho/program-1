@@ -1,0 +1,7 @@
+Makefile
+outfile
+out.txt
+README.md
+slosh
+slosh.c
+slosh.o
