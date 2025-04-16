@@ -177,7 +177,6 @@
              for (x = 0; x < 2 * numPipes; x++) {
                  close(pipefd[x]);
              }
-             int z = 0;
              execvp(commands[m][0], commands[m]);
              printf("failed");
              exit(EXIT_FAILURE);
