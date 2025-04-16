@@ -259,13 +259,26 @@
      signal(SIGTTOU, SIG_IGN);
      
      while (status) {
-         display_prompt();
-         
-         /* Read input and handle signal interruption */
-         if (fgets(input, MAX_INPUT_SIZE, stdin) == NULL) {
-             /* TODO: Handle EOF and signal interruption */
-             break;
-         }
+        display_prompt();
+        
+        /* Read input and handle signal interruption */
+        if (fgets(input, MAX_INPUT_SIZE, stdin) == NULL) {
+            if (feof(stdin)) {
+                // eof (ctrl+d), exit shell
+                status = 0;
+                printf("\n");
+            } else if (errno == EINTR) {
+                // interrupted by signal, clear error and continue
+                clearerr(stdin); 
+                errno = 0;
+                continue; 
+            } else {
+                // other error
+                perror("slosh: fgets failed");
+                status = 0;
+            }
+            continue;
+        }
          
          /* Parse input */
          parse_input(input, args);
