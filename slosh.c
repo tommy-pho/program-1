@@ -40,13 +40,15 @@
   */
  void sigint_handler(int sig) {
     (void)sig;
-    write(STDOUT_FILENO, "\n", 1);
-    if (!child_running) {
+    write(STDOUT_FILENO, "\n", 1); 
+    
+    // if child running, send sigint; otherwise, display prompt
+    if (child_running > 0) {
+        kill(-child_running, SIGINT); 
+    } else {
         display_prompt();
-        fflush(stdout);
     }
 }
-
  /**
   * Display the command prompt with current directory
   */
@@ -83,7 +85,7 @@
          args[i] = token;
          i++;
          token = strtok(NULL, " ");
-     } 
+     }
      return 0;
  }
  
@@ -120,26 +122,55 @@
   * @return 0 to exit shell, 1 to continue, -1 if not a built-in command
   */
  int handle_builtin(char **args) {
-     /* TODO: Your implementation here */
-     return -1;  /* Not a builtin command */
- }
+    if (args[0] == NULL) {
+        return 1; // empty cmd, continue
+    }
+
+    if (strcmp(args[0], "exit") == 0) {
+        return 0; // signal to exit
+    }
+
+    if (strcmp(args[0], "cd") == 0) {
+        char *target_dir;
+        if (args[1] == NULL) {
+            // no arg, go to home dir
+            target_dir = getenv("HOME");
+            if (target_dir == NULL) {
+                fprintf(stderr, "slosh: cd: HOME not set\n");
+                return 1; // continue shell
+            }
+        } else {
+            target_dir = args[1];
+        }
+
+        if (chdir(target_dir) != 0) {
+            perror("slosh: cd"); 
+        }
+        return 1;
+    }
+
+    return -1;  /* Not a builtin command */
+}
  
  int main(void) {
      char input[MAX_INPUT_SIZE];
      char *args[MAX_ARGS];
      int status = 1;
      int builtin_result;
+     struct sigaction sa;
      
      /* TODO: Set up signal handling for SIGINT (Ctrl+C) */
-     struct sigaction sa;
      sa.sa_handler = sigint_handler;
-     sigemptyset(&sa.sa_mask);
+     sigemptyset(&sa.sa_mask); 
      sa.sa_flags = SA_RESTART;
-     
-     if(sigaction(SIGINT, &sa, NULL) == -1) {
-         perror("sigaction");
+     if (sigaction(SIGINT, &sa, NULL) == -1) {
+         perror("sigaction failed");
          exit(EXIT_FAILURE);
      }
+     
+     signal(SIGQUIT, SIG_IGN); 
+     signal(SIGTTIN, SIG_IGN);
+     signal(SIGTTOU, SIG_IGN);
      
      while (status) {
          display_prompt();

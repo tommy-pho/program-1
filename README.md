@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # Program 1: SLOsh
 ## by Tommy Pho & Anson Wu
 
@@ -125,4 +124,3 @@ Submit a `.tgz` archive containing:
 =======
 # program-1
 Anson Wu and Tommy Pho
->>>>>>> anson
