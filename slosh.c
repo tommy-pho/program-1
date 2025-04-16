@@ -68,6 +68,21 @@
   */
  int parse_input(char *input, char **args) {
      /* TODO: Your implementation here */
+     int i = 0;
+     int j = 0;
+     int len = strlen(input);
+     if (input && input[len - 1] == '\n') {
+         input[len - 1] = '\0';
+     }
+     char *token = strtok(input, " ");
+     for (j = 0; j < MAX_ARGS; j++) {
+         args[j] = NULL;
+     }
+     while (token != NULL && i < MAX_ARGS) {
+         args[i] = token;
+         i++;
+         token = strtok(NULL, " ");
+     }
      return 0;
  }
  
@@ -91,6 +106,89 @@
       * 4. For pipes, create two child processes connected by a pipe
       * 5. For redirection, use open() and dup2() to redirect stdout
       */
+     pid_t cpid;
+     int i = 0;
+     char *commands[20][MAX_ARGS];
+     int numComs = 0;
+     int j = 0;
+     int append = 0;
+     char *outfile = NULL;
+     memset(commands, 0, sizeof(commands));
+     while (args[i] != NULL) {
+         if (strcmp(args[i], "|") == 0) {
+             commands[numComs][j] = NULL;
+             numComs++;
+             j = 0;
+         } else if (strcmp(args[i], ">") == 0) {
+             commands[numComs][j] = NULL;
+             outfile = args[i + 1];
+             i++;
+         } else if (strcmp(args[i], ">>") == 0) {
+             commands[numComs][j] = NULL;
+             outfile = args[i + 1];
+             append = 1;
+             i++;
+         } else if (args[i][0] != '\0') { // regular command
+             commands[numComs][j] = args[i];
+             j++;
+         }
+         i++;
+     }
+     if (j > 0) {
+         commands[numComs][j] = NULL;
+         numComs++;
+     }
+
+     int numPipes = numComs - 1;
+     int pipefd[2 * numPipes];
+     int k = 0;
+     int m = 0;
+     int x = 0;
+
+     // create all the pipes
+     for (k = 0; k < numPipes; k++) {
+         if (pipe(pipefd + k * 2) == -1) {
+             perror("pipe creation failed");
+             exit(EXIT_FAILURE);
+         }
+     }
+
+     // forking
+     for (m = 0; m < numComs; m++) {
+         cpid = fork();
+         if (cpid == 0) { // child        
+             if (m > 0) {
+                 dup2(pipefd[(m - 1) * 2], STDIN_FILENO);
+             }
+             if (m < numPipes) {
+                 dup2(pipefd[m * 2 + 1], STDOUT_FILENO);
+             }
+             if (outfile != NULL && m == numComs - 1 && numPipes == 0) {
+                 int outFD;
+                 if (append) {
+                     outFD = open(outfile, O_WRONLY | O_CREAT | O_APPEND, 0644);
+                 } else {
+                     outFD = open(outfile, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+                 }
+                 dup2(outFD, STDOUT_FILENO);
+                 close(outFD);
+             }
+             
+             for (x = 0; x < 2 * numPipes; x++) {
+                 close(pipefd[x]);
+             }
+             int z = 0;
+             execvp(commands[m][0], commands[m]);
+             printf("failed");
+             exit(EXIT_FAILURE);
+         }
+     }
+     for (k = 0; k < 2 * numPipes; k++) {
+         close(pipefd[k]);
+     }
+     for (k = 0; k < numComs; k++) {
+         wait(NULL);
+     }   
  }
  
  /**
